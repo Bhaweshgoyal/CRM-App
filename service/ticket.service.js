@@ -1,3 +1,4 @@
+const { sendNotification } = require("../Utils/notificationServiceClient");
 const Ticket = require("../models/ticket.model");
 const UserService = require("../service/user.service");
 const createTicket = async (data, userData) => {
@@ -51,6 +52,20 @@ const createTicket = async (data, userData) => {
         };
       }
     }
+    const sendNotificationEmailObj = {
+      subject: "A new Ticket created " + ticketResponse.title,
+      content: "Ticket Desciption " + ticketResponse.description,
+      recepientEmails: [ticketResponse.createdBy, ticketResponse.assignedTo],
+      requester: ticketResponse.createdBy,
+      ticketId: ticketResponse._id,
+    };
+    sendNotification(
+      sendNotificationEmailObj.subject,
+      sendNotificationEmailObj.content,
+      sendNotificationEmailObj.recepientEmails,
+      sendNotificationEmailObj.requester,
+      sendNotificationEmailObj.ticketId
+    );
     return ticketResponse;
   } catch (err) {
     console.log(err);

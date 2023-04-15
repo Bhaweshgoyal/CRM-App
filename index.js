@@ -14,14 +14,15 @@ authRoute(app);
 ticketRoute(app);
 app.listen(PORT, () => {
   console.log("Connection build successfully", PORT);
+  mongoose.connect(mongoURI)
 });
 // const User = require("./models/user.model");
 // const Ticket = require ("./models/ticket.model");
-mongoose.connect(mongoURI).then(
-  () => {
-    console.log("Connected Successfully ");
-  },
-  (err) => {
-    console.log("Error_Occured", err);
-  }
-);
+// mongoose.connect(mongoURI).then(
+//   () => {
+//     console.log("Connected Successfully ");
+//   },
+//   (err) => {
+//     console.log("Error_Occured", err);
+//   }
+// );

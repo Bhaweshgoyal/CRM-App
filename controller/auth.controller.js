@@ -1,7 +1,7 @@
 const userServices = require("../service/auth.service");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-signUp = async (req, res) => {
+const signUp = async (req, res) => {
   try {
     const result = await userServices.createUser(req.body);
     let statusCode;
@@ -24,7 +24,7 @@ signUp = async (req, res) => {
   }
 };
 
-signIn = async (req, res) => {
+const signIn = async (req, res) => {
   let statusCode;
   let response;
   try {
