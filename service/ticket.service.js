@@ -1,5 +1,6 @@
 const { sendNotification } = require("../Utils/notificationServiceClient");
 const Ticket = require("../models/ticket.model");
+const User = require("../models/user.model")
 const UserService = require("../service/user.service");
 const createTicket = async (data, userData) => {
   // userData it is the data of assignee who is assigning the ticket as well as we can say a admin
@@ -141,7 +142,7 @@ const getMyAllAssignedTickets = async (userInfo) => {
     return err.message;
   }
 };
-const updateTicketyId = async (id, ticketInfo, currentUser) => {
+const updateTicketById = async (id, ticketInfo, currentUser) => {
   try {
     const validateTicket = await UserService.validateTicketId(id);
     if (!validateTicket || validateTicket.error) {
@@ -186,6 +187,20 @@ const updateTicketyId = async (id, ticketInfo, currentUser) => {
     const response = await Ticket.findOneAndUpdate(filter, update, {
       new: true,
     });
+    const sendNotificationEmailObj = {
+      subject: "A new Ticket updated " + response.title,
+      content: "Ticket Desciption " + response.description,
+      recepientEmails: [response.createdBy, response.assignedTo],
+      requester: response.createdBy,
+      ticketId: response._id,
+    };
+    sendNotification(
+      sendNotificationEmailObj.subject,
+      sendNotificationEmailObj.content,
+      sendNotificationEmailObj.recepientEmails,
+      sendNotificationEmailObj.requester,
+      sendNotificationEmailObj.ticketId
+    );
     return response;
   } catch (err) {
     console.log(err);
@@ -198,5 +213,5 @@ module.exports = {
   getAllTicketes,
   getAllTicketByStatus,
   getMyAllAssignedTickets,
-  updateTicketyId,
+  updateTicketById,
 };

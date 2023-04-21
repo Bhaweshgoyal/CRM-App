@@ -1,4 +1,4 @@
-const userServices = require("../service/auth.service");
+const userServices = require("../service/user.service");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const signUp = async (req, res) => {
@@ -14,9 +14,7 @@ const signUp = async (req, res) => {
       statusCode = 201;
       response = result.user;
     }
-    return res.status(statusCode).send({
-      result: response,
-    });
+    return res.status(statusCode).send(response);
   } catch (err) {
     res.status(500).send({
       result: err,
@@ -33,7 +31,7 @@ const signIn = async (req, res) => {
       statusCode = 401;
       response = result.err;
     } else {
-      statusCode = 200;
+      statusCode = 201;
       const token = jwt.sign(
         { email: req.body.email },
         process.env.JWT_SECRET_KEY
@@ -43,9 +41,7 @@ const signIn = async (req, res) => {
         token: token,
       };
     }
-    return res.status(statusCode).send({
-      result: response,
-    });
+    return res.status(statusCode).send(response);
   } catch (err) {
     res.status(500).send({
       result: err,

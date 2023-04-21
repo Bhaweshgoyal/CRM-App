@@ -3,37 +3,54 @@ const userService = require("../service/user.service");
 const getAllUsers = async (req, res) => {
   try {
     const usersInfo = await userService.getAllUsers();
-    res.status(200).send({
+  if(usersInfo.err){
+    return res.status(401).send({
+      result : usersInfo.err
+    })
+  }
+  return  res.status(201).send({
       result: usersInfo,
     });
+  
   } catch (err) {
-    res.status(401).json({
+   return res.status(501).send({
       result: err,
     });
   }
 };
 
 const getUserByEmail = async (req, res) => {
-  // try {
-  let response = await userService.getUserByEmail(req.params);
-  return res.status(200).json({
-    result: response,
-  });
-  // } catch (err) {
-  //   res.status(500).send({
-  //     result: "err",
-  //   });
-  // }
+  try{
+    let response = await userService.getUserByEmail(req.params);
+    if (response.err) {
+      return res.status(401).send({result: response.err});
+    }
+    return res.status(201).send({
+      result: response,
+    });
+  }
+  catch(err){
+
+  }
+  
+ 
 };
 
 const getUserByUserId = async (req, res) => {
   try {
     const response = await userService.getUserByUserId(req.params.userId);
-    res.status(200).send({
+
+    if(response.err){
+      return res.status(401).send({
+        result : response.err
+      })
+    }
+
+    res.status(201).send({
       result: response,
     });
   } catch (err) {
-    return res.status(500).json({
+    return res.status(500).send({
       result: err,
     });
   }
@@ -47,12 +64,12 @@ const updateUserType = async (req, res) => {
         result: response.err,
       });
     } else {
-      res.status(200).send({
+      res.status(201).send({
         result: response,
       });
     }
   } catch (err) {
-    res.status(500).json({
+    res.status(500).send({
       result: err,
     });
   }

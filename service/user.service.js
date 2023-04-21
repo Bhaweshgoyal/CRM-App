@@ -1,11 +1,12 @@
 const User = require("../models/user.model");
 const userConstant = require("../Contants/user.constant");
 const Ticket  = require("../models/ticket.model");
+const bcrypt = require("bcrypt")
 const getAllUsers = async () => {
   try {
     const response = await User.find();
-    if (!response) {
-      return "No users Exist";
+    if (response.length == 0) {
+      return {err : "No users Exist"};
     }
     return response;
   } catch (err) {
@@ -15,6 +16,9 @@ const getAllUsers = async () => {
 const getUserByEmail = async (data) => {
   try {
     let userInfo = await User.findOne({ email: data.email });
+    if (userInfo.length == 0) {
+      return {err : "No users Exist"};
+    }
     return userInfo;
   } catch (err) {
     return err.message;
@@ -132,8 +136,52 @@ const validateTicketId = async(ticketId) =>{
       return err.message;
   }
 }
+const createUser = async (data) => {
+  const response = {};
+  try {
+    const userObj = {
+      name: data.name,
+      email: data.email,
+      userType: data.userType,
+      password: data.password,
+      userStatus: data.userStatus,
+    };
+    const newUser = await User.create(userObj);
+    response.user = newUser;
+    return response;
+  } catch (err) {
+    response.err = err.message;
+    return response;
+  }
+};
+
+const verifyUser = async (data) => {
+  const response = {};
+  try {
+    const userData = await User.findOne({ email: data.email });
+    //   email is null like user does not exist
+    if (!userData) {
+      response.err = "Invalid Email";
+    } 
+    else {
+      const result = bcrypt.compareSync(data.password, userData.password);
+      if (result) {
+        response.success = true;
+      } else {
+        response.err = "Invalid Password";
+      }
+    }
+    return response;
+  } catch (err) {
+    console.log({"error" : err})
+    response.err = err.message;
+    return response;
+  }
+};
 
 module.exports = {
+  createUser,
+  verifyUser,
   getUserByEmail,
   getAllUsers,
   getUserByUserId,

@@ -39,14 +39,13 @@ const ticketRoute = (app) => {
   // get one tikcet by its id
 
   app.post("/crm/api/v1/ticket/:id", isUserAuthenticated, getTicketById);
+// update the status of ticket by thier ID
   app.patch(
     "/crm/api/v1/ticket/updateTicketyId/:id",
     isUserAuthenticated,
     updateTicketyId
   );
 };
-
-// update the status of ticket by thier ID
 
 module.exports = {
   ticketRoute,
