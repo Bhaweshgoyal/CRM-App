@@ -1,5 +1,5 @@
 const {
-  updateTicketyId,
+  updateTicketById,
   createTicket,
   getAllTicketes,
   getTicketById,
@@ -43,7 +43,7 @@ const ticketRoute = (app) => {
   app.patch(
     "/crm/api/v1/ticket/updateTicketyId/:id",
     isUserAuthenticated,
-    updateTicketyId
+    updateTicketById
   );
 };
 

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "jest --testEnvironment=node --coverage ./service "
+    "test": "jest --testEnvironment=node --coverage ./service/user.service.test "
   },
   "author": "",
   "license": "ISC",

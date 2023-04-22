@@ -1,23 +1,25 @@
 const User = require("../models/user.model");
 const userConstant = require("../Contants/user.constant");
-const Ticket  = require("../models/ticket.model");
-const bcrypt = require("bcrypt")
+const Ticket = require("../models/ticket.model");
+const bcrypt = require("bcrypt");
 const getAllUsers = async () => {
   try {
     const response = await User.find();
     if (response.length == 0) {
-      return {err : "No users Exist"};
+      return { err: "No users Exist" };
     }
     return response;
   } catch (err) {
-    return err;
+    return err.message;
   }
 };
 const getUserByEmail = async (data) => {
   try {
     let userInfo = await User.findOne({ email: data.email });
-    if (userInfo.length == 0) {
-      return {err : "No users Exist"};
+    if (!userInfo) {
+      return {
+        err: "No User Found",
+      };
     }
     return userInfo;
   } catch (err) {
@@ -29,7 +31,11 @@ const getUserByUserId = async (userId) => {
     const userInfo = await User.findOne({
       _id: userId,
     });
-
+    if (!userInfo) {
+      return {
+        err: "No user Found",
+      };
+    }
     return userInfo;
   } catch (err) {
     return err;
@@ -38,11 +44,9 @@ const getUserByUserId = async (userId) => {
 const updateUserType = async (data) => {
   try {
     let result;
-    if (
-      !(Object.values(userConstant.userType).indexOf(data.update.userType) >= 0)
-    ) {
+    if (!(Object.values(userConstant.userType).indexOf(data.update.userType) >= 0)) {
       result = {
-        error: "Invalid user type provided",
+        error: "invalid user type provided",
       };
       return result;
     }
@@ -52,12 +56,14 @@ const updateUserType = async (data) => {
         { _id: data.userId },
         { userType: data.update.userType }
       );
-    } else if (data.email) {
+    } 
+    else if (data.email) {
       result = await User.findOneAndUpdate(
         { email: data.email },
         { userType: data.update.userType }
       );
-    } else {
+    }
+    else {
       // return error
       result = {
         error: "required fields are not provided to update user type",
@@ -72,22 +78,30 @@ const updateUserType = async (data) => {
 
 const isValidActiveUser = async (data) => {
   try {
-    let userInfo = await getUserByEmail(data)
+    let userInfo = await getUserByEmail(data);
     if (userInfo && userInfo.userStatus == "approved") {
       return {
-        email: userInfo,
+        user: userInfo,
       };
-    } else {
+    } 
+    else {
       return {
         error: "Invalid User",
       };
     }
   } catch (err) {
+    console.log(err)
     return err.message;
   }
 };
 const addNewTicketCreatedByUser = async (userEmail, ticketId) => {
   try {
+    const validateTicket = await validateTicketId(ticketId);
+    if(!validateTicket || validateTicket.error){
+        return {
+          error : validateTicket.error
+        }
+    }
     const response = await User.updateOne(
       { email: userEmail },
       { $push: { ticketsCreated: ticketId } }
@@ -102,7 +116,7 @@ const addNewTicketCreatedByUser = async (userEmail, ticketId) => {
 const addTicketAssignedToUser = async (userEmail, ticketId) => {
   try {
     const isvalidateTicketId = await validateTicketId(ticketId);
-    console.log(isvalidateTicketId)
+    console.log(isvalidateTicketId);
     if (!isvalidateTicketId || isvalidateTicketId.error) {
       return {
         error: isvalidateTicketId.error,
@@ -118,24 +132,41 @@ const addTicketAssignedToUser = async (userEmail, ticketId) => {
     return err.message;
   }
 };
-const validateTicketId = async(ticketId) =>{
+const getAllAssignedTicketsOfUser  = async(userInfo) =>{
   try{
-      console.log(ticketId)
-      const response = await Ticket.findOne({_id: ticketId});
-      if(response){
-          return response;
-      }
-      else{
+      const validatedUser = await isValidActiveUser(userInfo);
+     if(!validatedUser || validatedUser.error){
           return {
-              error: "invalid ticket id"
+              error: "Invalid User"
           }
       }
-  }
-  catch(err){
-      console.log(err + "ERROR IN VALIDATE TICKET OCCURING");
+      const tickets = [];
+      for(const ticketId of userInfo.ticketsAssigned){
+          const ticket =  await Ticket.findOne({_id: ticketId});
+         tickets.push(ticket)
+      }
+      return tickets; 
+  } catch(err){
+      console.log(err);
       return err.message;
   }
 }
+const validateTicketId = async (ticketId) => {
+  try {
+    console.log(ticketId);
+    const response = await Ticket.findOne({ _id: ticketId });
+    if (response) {
+      return response;
+    } else {
+      return {
+        error: "invalid ticket id",
+      };
+    }
+  } catch (err) {
+    console.log(err + "ERROR IN VALIDATE TICKET OCCURING");
+    return err.message;
+  }
+};
 const createUser = async (data) => {
   const response = {};
   try {
@@ -162,8 +193,7 @@ const verifyUser = async (data) => {
     //   email is null like user does not exist
     if (!userData) {
       response.err = "Invalid Email";
-    } 
-    else {
+    } else {
       const result = bcrypt.compareSync(data.password, userData.password);
       if (result) {
         response.success = true;
@@ -173,7 +203,7 @@ const verifyUser = async (data) => {
     }
     return response;
   } catch (err) {
-    console.log({"error" : err})
+    console.log({ error: err.message });
     response.err = err.message;
     return response;
   }
@@ -190,4 +220,5 @@ module.exports = {
   addNewTicketCreatedByUser,
   addTicketAssignedToUser,
   validateTicketId,
+  getAllAssignedTicketsOfUser
 };
