@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const { PORT } = require("./config/server.config");
-const { mongoURI } = require("./config/db.config");
+const { mongoDbUri } = require("./config/db.config");
 const authRoute = require("./routes/auth.route");
 const { userRoute } = require("./routes/user.route");
 const { ticketRoute } = require("./routes/ticket.route");
@@ -14,7 +14,7 @@ authRoute(app);
 ticketRoute(app);
 app.listen(PORT, () => {
   console.log("Connection build successfully", PORT);
-  mongoose.connect(mongoURI)
+  mongoose.connect(mongoDbUri)
 });
 // const User = require("./models/user.model");
 // const Ticket = require ("./models/ticket.model");
