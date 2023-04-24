@@ -3,7 +3,7 @@ let client = new Client();
 
 // set content-type header and data as json in args parameter
 let notificationSerivceURL =
-  "http://localhost:8080/notificationService/api/v1/notification";
+  "https://notification-service-ankb.onrender.com/notificationService/api/v1/notification";
 exports.sendNotification = (
   subject,
   content,
